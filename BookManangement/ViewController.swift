@@ -8,17 +8,23 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
     @IBOutlet weak var consoleTextView: UITextView!
     @IBOutlet weak var userTextField: UITextField!
     @IBOutlet weak var btnOkay: UIButton!
     private var consoleText = ""
+    private var okayList: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setKeyboardNotification()
         setConsole()
     }
+    
+    
+    @IBAction func tapBackgroundView(_ sender: Any) {
+          view.endEditing(true)
+      }
     
     private func setConsole() {
         consoleText = """
@@ -33,31 +39,28 @@ class ViewController: UIViewController {
                """
         consoleTextView.text = consoleText
     }
-    //진짜 콘솔창을 가져오는게 아니라 textfield를 콘솔창 처럼 사용하는 것이 챗 지피티 내용이어서 이렇게 짰습니다.
-    //모든 것을 이 함수에서 처리해야해서 고민하다가 너무 늦어서 자야겠습니다.
+    
     @IBAction func okayAction(_ sender: Any) {
-        if consoleText.contains("Lv.1") {
-            switch userTextField.text {
-            case "1":
-             memberManageAction()
-            case "2":
-                print("gkgk")
-            case "3":
-                print("gkgk")
-            case "4":
-                print("gkgk")
-            case "5":
-                print("gkgk")
-            case "6":
-                print("gkgk")
-            case .none:
-                print("gkgk")
-            case .some(_):
-                print("gkgk")
+        if (okayList[0].isEmpty) {
+            if let text = userTextField.text {
+                okayList[0] = text
             }
-        } else if consoleText.contains("Lv.2") {
-        } else if consoleText.contains("Lv.3") {
-            
+        }
+        switch okayList[0] {
+        case "1":
+            memberManageAction()
+        case "2":
+            print("gkgk")
+        case "3":
+            print("gkgk")
+        case "4":
+            print("gkgk")
+        case "5":
+            print("gkgk")
+        case "6":
+            print("gkgk")
+        default:
+            print("gkgk")
         }
     }
     
@@ -71,6 +74,7 @@ class ViewController: UIViewController {
         4. 저장하기
         5. 상위메뉴 이동
         """
+        consoleTextView.text += text
     }
 }
 
