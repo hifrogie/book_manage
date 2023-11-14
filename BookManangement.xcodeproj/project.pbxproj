@@ -13,6 +13,7 @@
 		0773480F2B00ED0F001CCAA1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0773480D2B00ED0F001CCAA1 /* Main.storyboard */; };
 		077348112B00ED11001CCAA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 077348102B00ED11001CCAA1 /* Assets.xcassets */; };
 		077348142B00ED11001CCAA1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 077348122B00ED11001CCAA1 /* LaunchScreen.storyboard */; };
+		07C9BA7A2B039BD6006C54D4 /* DataTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C9BA792B039BD6006C54D4 /* DataTable.swift */; };
 		2C6286662B020F1C004D7AB8 /* KeyboardClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6286652B020F1C004D7AB8 /* KeyboardClass.swift */; };
 		2C6286692B02102A004D7AB8 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6286682B02102A004D7AB8 /* Utility.swift */; };
 /* End PBXBuildFile section */
@@ -26,6 +27,7 @@
 		077348102B00ED11001CCAA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		077348132B00ED11001CCAA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		077348152B00ED11001CCAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		07C9BA792B039BD6006C54D4 /* DataTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTable.swift; sourceTree = "<group>"; };
 		2C6286652B020F1C004D7AB8 /* KeyboardClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardClass.swift; sourceTree = "<group>"; };
 		2C6286682B02102A004D7AB8 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -60,6 +62,7 @@
 		077348062B00ED0F001CCAA1 /* BookManangement */ = {
 			isa = PBXGroup;
 			children = (
+				07C9BA782B039BA0006C54D4 /* dataTable */,
 				2C6286672B021014004D7AB8 /* util */,
 				2C6286642B020E77004D7AB8 /* keyboard */,
 				077348072B00ED0F001CCAA1 /* AppDelegate.swift */,
@@ -71,6 +74,14 @@
 				077348152B00ED11001CCAA1 /* Info.plist */,
 			);
 			path = BookManangement;
+			sourceTree = "<group>";
+		};
+		07C9BA782B039BA0006C54D4 /* dataTable */ = {
+			isa = PBXGroup;
+			children = (
+				07C9BA792B039BD6006C54D4 /* DataTable.swift */,
+			);
+			path = dataTable;
 			sourceTree = "<group>";
 		};
 		2C6286642B020E77004D7AB8 /* keyboard */ = {
@@ -162,6 +173,7 @@
 			files = (
 				2C6286692B02102A004D7AB8 /* Utility.swift in Sources */,
 				0773480C2B00ED0F001CCAA1 /* ViewController.swift in Sources */,
+				07C9BA7A2B039BD6006C54D4 /* DataTable.swift in Sources */,
 				2C6286662B020F1C004D7AB8 /* KeyboardClass.swift in Sources */,
 				077348082B00ED0F001CCAA1 /* AppDelegate.swift in Sources */,
 				0773480A2B00ED0F001CCAA1 /* SceneDelegate.swift in Sources */,

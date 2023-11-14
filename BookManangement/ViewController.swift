@@ -14,7 +14,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var btnOkay: UIButton!
     private var consoleText = ""
     private var okayList: [String] = ["0","0","0"]
-    
+    private var memberAddDict: [String: String] = ["name":"","age":"","memberId":"",
+                                                   "phoneNumber":"","bookRented":""]
     override func viewDidLoad() {
         super.viewDidLoad()
         setKeyboardNotification()
@@ -41,14 +42,17 @@ class ViewController: UIViewController {
                 okayList[0] = text
                 firstLevelText(type: text)
         } else if (okayList[1] == "0") {
-            okayList.append(text)
+            okayList[1] = text
             
             switch okayList[0]{
-            case "1": memberSecondLevelText(type: okayList[1])
+            case "1":
+                memberSecondLevelText(type: okayList[1])
             default:
                 let text = "다시 선택해 주세요."
                 consoleTextView.text += text
             }
+        } else if (okayList[0] == "1" && okayList[1] == "1") {
+            addMember(text: text)
         }
     }
     
@@ -117,6 +121,7 @@ class ViewController: UIViewController {
             let text = """
             1. 회원 등록
             ///////////////
+            1. 이름을 입력하세요\n
             """
             consoleTextView.text += text
         case "2":
@@ -132,9 +137,23 @@ class ViewController: UIViewController {
         case "3":
             let text = """
             3. 회원 목록(전체보기)
-            ///////////////
+            ////////////////////// start /////////////////////////
+            이름    나이      회원번호              폰번호        빌린비디오\n
             """
             consoleTextView.text += text
+            
+            for (key, value) in DataTable.instance.userDataDictionary {
+                let textBody = """
+                \(key)  \(value.age)       \(value.memberId)        \(value.phoneNumber)       \(value.bookRented)\n
+                """
+                consoleTextView.text += textBody
+            }
+            
+            let endText = """
+            ////////////////////// end ////////////////////////////
+            """
+            
+            consoleTextView.text += endText
         case "4":
             let text = """
             4. 저장하기
@@ -150,6 +169,38 @@ class ViewController: UIViewController {
         default:
             let text = "다시 선택해 주세요."
             consoleTextView.text += text
+        }
+    }
+    
+    private func addMember(text:String) {
+        if memberAddDict["name"] == "" {
+            memberAddDict["name"] = text
+            
+            let userText = "2. 나이를 입력하세요\n"
+            consoleTextView.text = userText
+        } else if memberAddDict["age"] == "" {
+            memberAddDict["age"] = text
+            
+            let userText = "3. 회원번호를 입력하세요\n"
+            consoleTextView.text = userText
+        } else if memberAddDict["memberId"] == "" {
+            memberAddDict["memberId"] = text
+            
+            let userText = "4. 폰번호를 입력하세요\n"
+            consoleTextView.text = userText
+        } else if memberAddDict["phoneNumber"] == "" {
+            memberAddDict["phoneNumber"] = text
+            let userText = "5. 대여도서를 입력하세요\n"
+            consoleTextView.text = userText
+        } else if memberAddDict["bookRented"] == "" {
+            memberAddDict["bookRented"] = text
+            
+            guard let name = memberAddDict["name"], let age = memberAddDict["age"], let memberId = memberAddDict["memberId"], let phoneNumber = memberAddDict["phoneNumber"],
+                  let bookRented = memberAddDict["bookRented"] else {return}
+            let userTuple:DataTable.UserTuple = (age, memberId, phoneNumber, bookRented)
+            DataTable.instance.userDataDictionary[name] = userTuple
+            
+            memberSecondLevelText(type: "3")
         }
     }
 }
