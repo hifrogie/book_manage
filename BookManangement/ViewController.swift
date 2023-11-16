@@ -20,6 +20,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         setKeyboardNotification()
         setConsole()
+        initUserDict()
     }
     
     private func setConsole() {
@@ -36,6 +37,11 @@ class ViewController: UIViewController {
         consoleTextView.text = consoleText
     }
     
+    private func initUserDict() {
+        if UserDefaults.standard.dictionary(forKey: "userDict") == nil {
+            UserDefaults.standard.set(DataTable.instance.userDataDictionary,forKey: "userDict")
+        }
+    }
     @IBAction func okayAction(_ sender: Any) {
         guard let text = userTextField.text else {return}
         if (okayList[0] == "0") {
@@ -56,6 +62,28 @@ class ViewController: UIViewController {
         }
     }
     
+    private func dummy() {
+        guard let text = userTextField.text else {return}
+        if (okayList[0] == "0") {
+            okayList[0] = text
+            firstLevelText(type: text)
+        } else if (okayList[0] == "1") {
+            if okayList[1] == "0" {
+                okayList[1] = text
+            }
+            switch okayList[1]{
+            case "1":
+                memberSecondLevelText(type: okayList[1])
+            case "2":
+                let searchText = "검색할 회원의 이름을 작성해주세요"
+                consoleTextView.text += searchText
+            default:
+                let text = "다시 선택해 주세요."
+                consoleTextView.text += text
+            }
+            
+        }
+    }
     private func firstLevelText(type:String) {
         var text = ""
         switch okayList[0] {
@@ -142,9 +170,11 @@ class ViewController: UIViewController {
             """
             consoleTextView.text += text
             
-            for (key, value) in DataTable.instance.userDataDictionary {
+            guard let userDict = UserDefaults.standard.dictionary(forKey: "userDict") else {return}
+            for (key, value ) in userDict{
+                let dataValue:Array<String> = value as! Array<String>
                 let textBody = """
-                \(key)  \(value.age)       \(value.memberId)        \(value.phoneNumber)       \(value.bookRented)\n
+                \(key)  \(dataValue[0])       \(dataValue[1])        \(dataValue[2])       \(dataValue[3])\n
                 """
                 consoleTextView.text += textBody
             }
@@ -190,16 +220,12 @@ class ViewController: UIViewController {
             consoleTextView.text = userText
         } else if memberAddDict["phoneNumber"] == "" {
             memberAddDict["phoneNumber"] = text
-            let userText = "5. 대여도서를 입력하세요\n"
-            consoleTextView.text = userText
-        } else if memberAddDict["bookRented"] == "" {
-            memberAddDict["bookRented"] = text
             
-            guard let name = memberAddDict["name"], let age = memberAddDict["age"], let memberId = memberAddDict["memberId"], let phoneNumber = memberAddDict["phoneNumber"],
-                  let bookRented = memberAddDict["bookRented"] else {return}
-            let userTuple:DataTable.UserTuple = (age, memberId, phoneNumber, bookRented)
-            DataTable.instance.userDataDictionary[name] = userTuple
-            
+            guard let name = memberAddDict["name"], let age = memberAddDict["age"], let memberId = memberAddDict["memberId"], let phoneNumber = memberAddDict["phoneNumber"] else {return}
+            let userArray = [age, memberId, phoneNumber, "0"]
+            guard var userDict = UserDefaults.standard.dictionary(forKey: "userDict") else {return}
+            userDict[name] = userArray as Any
+            UserDefaults.standard.set(userDict, forKey: "userDict")
             memberSecondLevelText(type: "3")
         }
     }
