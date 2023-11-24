@@ -9,7 +9,8 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet weak var consoleTextView: UITextView!
+   
+    @IBOutlet var consolLabel: UILabel!
     @IBOutlet weak var userTextField: UITextField!
     @IBOutlet weak var btnOkay: UIButton!
     private var consoleText = ""
@@ -19,9 +20,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setKeyboardNotification()
+        setupGestureRecognizer()
         setConsole()
         initDict()
-        UserDefaults.standard.set(DataTable.instance.bookDataDictionary, forKey: "bookDict")
     }
     
     private func setConsole() {
@@ -35,7 +36,7 @@ class ViewController: UIViewController {
                6. 종료
                명령을 번호로 입력하십시오:\n
                """
-        consoleTextView.text = consoleText
+        consolLabel.text = consoleText
     }
     
     private func initDict() {
@@ -45,13 +46,16 @@ class ViewController: UIViewController {
         if UserDefaults.standard.dictionary(forKey: "bookDict") == nil {
             UserDefaults.standard.set(DataTable.instance.bookDataDictionary, forKey: "bookDict")
         }
+        if UserDefaults.standard.dictionary(forKey: "rentalDict") == nil {
+            UserDefaults.standard.set(DataTable.instance.rentalStateDictionary, forKey: "rentalDict")
+        }
     }
     @IBAction func okayAction(_ sender: Any) {
-        guard let text = userTextField.text else {return}
+        guard let text = userTextField.text, let _ = consolLabel.text else {return}
         if (okayList[0] == "0") {
             okayList[0] = text
             memberClass.firstLevelText(type: text, completeHandler:{ text in
-                consoleTextView.text += text
+                consolLabel.text! += text
             })
         } else if okayList[1] == "0" {
             okayList[1] = text
@@ -66,7 +70,7 @@ class ViewController: UIViewController {
                     } else if text.contains("다시") {
                         okayList[1] = "0"
                     }
-                    consoleTextView.text += text
+                    consolLabel.text! += text
                 })
             case "2":
                 bookClass.memberSecondLevelText(type: okayList[1], completeHandler: { text in
@@ -75,10 +79,10 @@ class ViewController: UIViewController {
                         okayList[1] = "0"
                         setConsole()
                     }
-                    consoleTextView.text += text
+                    consolLabel.text! += text
                 })
             default:
-                consoleTextView.text += text
+                consolLabel.text! += text
             }
         } else {
             switch okayList[0] {
@@ -87,25 +91,25 @@ class ViewController: UIViewController {
                     if text == "상위 메뉴 이동" {
                         okayList[1] = "0"
                         memberClass.firstLevelText(type: "1", completeHandler: {text in
-                            consoleTextView.text += text
+                            consolLabel.text! += text
                             return
                         })
                     }
-                    consoleTextView.text += text
+                    consolLabel.text! += text
                 })
             case "2":
                 bookClass.memberThirdAction(type2: okayList[1], userText: text, completion:  { text in
                     if text == "상위 메뉴 이동" {
                         okayList[1] = "0"
                         memberClass.firstLevelText(type: "1", completeHandler: {text in
-                            consoleTextView.text += text
+                            consolLabel.text! += text
                             return
                         })
                     }
-                    consoleTextView.text += text
+                    consolLabel.text! += text
                 })
             default:
-                print("")
+                print("okayAction 실패")
             }
             
         }
