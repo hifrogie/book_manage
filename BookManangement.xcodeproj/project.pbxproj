@@ -18,6 +18,7 @@
 		07C9BA7A2B039BD6006C54D4 /* DataTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C9BA792B039BD6006C54D4 /* DataTable.swift */; };
 		2C6286662B020F1C004D7AB8 /* KeyboardClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6286652B020F1C004D7AB8 /* KeyboardClass.swift */; };
 		2C6286692B02102A004D7AB8 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6286682B02102A004D7AB8 /* Utility.swift */; };
+		2C71D7692B148041008EEA62 /* TextManageClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C71D7682B148041008EEA62 /* TextManageClass.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		07C9BA792B039BD6006C54D4 /* DataTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTable.swift; sourceTree = "<group>"; };
 		2C6286652B020F1C004D7AB8 /* KeyboardClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardClass.swift; sourceTree = "<group>"; };
 		2C6286682B02102A004D7AB8 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
+		2C71D7682B148041008EEA62 /* TextManageClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextManageClass.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 		077348062B00ED0F001CCAA1 /* BookManangement */ = {
 			isa = PBXGroup;
 			children = (
+				2C71D7672B148028008EEA62 /* text */,
 				07B706872B0B84DC00980131 /* book */,
 				07B706842B0B151800980131 /* member */,
 				07C9BA782B039BA0006C54D4 /* dataTable */,
@@ -120,6 +123,14 @@
 				2C6286682B02102A004D7AB8 /* Utility.swift */,
 			);
 			path = util;
+			sourceTree = "<group>";
+		};
+		2C71D7672B148028008EEA62 /* text */ = {
+			isa = PBXGroup;
+			children = (
+				2C71D7682B148041008EEA62 /* TextManageClass.swift */,
+			);
+			path = text;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,6 +211,7 @@
 				07B706862B0B153200980131 /* MemberClass.swift in Sources */,
 				2C6286662B020F1C004D7AB8 /* KeyboardClass.swift in Sources */,
 				077348082B00ED0F001CCAA1 /* AppDelegate.swift in Sources */,
+				2C71D7692B148041008EEA62 /* TextManageClass.swift in Sources */,
 				0773480A2B00ED0F001CCAA1 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

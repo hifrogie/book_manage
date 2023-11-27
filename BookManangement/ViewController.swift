@@ -17,26 +17,13 @@ class ViewController: UIViewController {
     private var okayList: [String] = ["0","0","0"]
     private var memberClass = MemberClass(isMemeber: true, keyword: "회원")
     private var bookClass = MemberClass(isMemeber: false, keyword: "도서")
+    private var textManageClass = TextManageClass(isMemeber: true, keyword: "회원")
     override func viewDidLoad() {
         super.viewDidLoad()
         setKeyboardNotification()
         setupGestureRecognizer()
-        setConsole()
+        consolLabel.text = textManageClass.setConsole()
         initDict()
-    }
-    
-    private func setConsole() {
-        consoleText = """
-               Lv.1
-               1. 회원 관리
-               2. 도서 관리
-               3. 도서 대여/반납 관리
-               4. 검색
-               5. 저장 & 종료
-               6. 종료
-               명령을 번호로 입력하십시오:\n
-               """
-        consolLabel.text = consoleText
     }
     
     private func initDict() {
@@ -54,7 +41,7 @@ class ViewController: UIViewController {
         guard let text = userTextField.text, let _ = consolLabel.text else {return}
         if (okayList[0] == "0") {
             okayList[0] = text
-            memberClass.firstLevelText(type: text, completeHandler:{ text in
+            textManageClass.firstLevelText(type: text, completeHandler:{ text in
                 consolLabel.text! += text
             })
         } else if okayList[1] == "0" {
@@ -62,22 +49,24 @@ class ViewController: UIViewController {
             
             switch okayList[0]{
             case "1":
-                memberClass.memberSecondLevelText(type: okayList[1], completeHandler:{ text in
+                textManageClass = TextManageClass(isMemeber: true, keyword: "회원")
+                textManageClass.memberSecondLevelText(type: okayList[1], completeHandler:{ text in
                     if text.contains("상위 메뉴 이동") {
                         okayList[0] = "0"
                         okayList[1] = "0"
-                        setConsole()
+                        consolLabel.text = textManageClass.setConsole()
                     } else if text.contains("다시") {
                         okayList[1] = "0"
                     }
                     consolLabel.text! += text
                 })
             case "2":
-                bookClass.memberSecondLevelText(type: okayList[1], completeHandler: { text in
+                textManageClass = TextManageClass(isMemeber: false, keyword: "도서")
+                textManageClass.memberSecondLevelText(type: okayList[1], completeHandler: { text in
                     if text.contains("상위 메뉴 이동") {
                         okayList[0] = "0"
                         okayList[1] = "0"
-                        setConsole()
+                        consolLabel.text = textManageClass.setConsole()
                     }
                     consolLabel.text! += text
                 })
@@ -90,7 +79,7 @@ class ViewController: UIViewController {
                 memberClass.memberThirdAction(type2: okayList[1], userText: text, completion: { text in
                     if text == "상위 메뉴 이동" {
                         okayList[1] = "0"
-                        memberClass.firstLevelText(type: "1", completeHandler: {text in
+                        textManageClass.firstLevelText(type: "1", completeHandler: {text in
                             consolLabel.text! += text
                             return
                         })
@@ -101,7 +90,7 @@ class ViewController: UIViewController {
                 bookClass.memberThirdAction(type2: okayList[1], userText: text, completion:  { text in
                     if text == "상위 메뉴 이동" {
                         okayList[1] = "0"
-                        memberClass.firstLevelText(type: "1", completeHandler: {text in
+                        textManageClass.firstLevelText(type: "1", completeHandler: {text in
                             consolLabel.text! += text
                             return
                         })
@@ -113,6 +102,7 @@ class ViewController: UIViewController {
             }
             
         }
+        userTextField.text = ""
     }
     
 }
