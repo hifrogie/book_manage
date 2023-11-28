@@ -18,12 +18,14 @@ class ViewController: UIViewController {
     private var memberClass = MemberClass(isMemeber: true, keyword: "회원")
     private var bookClass = MemberClass(isMemeber: false, keyword: "도서")
     private var textManageClass = TextManageClass(isMemeber: true, keyword: "회원")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setKeyboardNotification()
         setupGestureRecognizer()
         consolLabel.text = textManageClass.setConsole()
         initDict()
+        print(JSONDataManager.instance.getBooks())
     }
     
     private func initDict() {
