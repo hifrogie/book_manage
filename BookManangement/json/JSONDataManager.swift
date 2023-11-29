@@ -13,7 +13,11 @@ enum FileName:String {
     case user_data
 }
 
-struct User: Codable {
+struct User:Codable {
+    var user: [String:[UserValue]]
+}
+
+struct UserValue: Codable {
 //    var name:String
     var age:String
     var memberId:String
@@ -22,13 +26,21 @@ struct User: Codable {
 }
 
 struct Book: Codable {
+    var book:[String:[BookValue]]
+}
+
+struct BookValue: Codable {
 //    var bookTitle:String
     var bookNumber:String
     var rentalStatus:String
     var borrower:String
 }
 
-struct Rental:Codable {
+struct Rental: Codable {
+    var rental: [String:[RentalValue]]
+}
+
+struct RentalValue:Codable {
 //    var bookTitle:String
     var memberId:String
     var bookId:String
@@ -41,37 +53,26 @@ struct Rental:Codable {
 class JSONDataManager {
     static let instance = JSONDataManager()
     
-    var users:[String:[User]] = [:]
-    var books:[String:[Book]] = [:]
-    var rentals:[String:[Rental]] = [:]
+    var users:User
+    var books:Book
+    var rentals:Rental
     
     init() {
         loadAllFiles()
     }
     
-    func getUsers() -> [String:[User]] {
-        return users
-    }
-    
-    func getBooks() -> [String:[Book]] {
-        return books
-    }
-    
-    func getRentals() -> [String:[Rental]] {
-        return rentals
-    }
     private func loadAllFiles() {
         loadFile(JsonfileName: .user_data, into: &users)
         loadFile(JsonfileName: .book_data, into: &books)
         loadFile(JsonfileName: .rental_state, into: &rentals)
     }
     
-    private func loadFile<T: Codable>(JsonfileName: FileName, into dict: inout [String:[T]]) {
+    private func loadFile<T: Codable>(JsonfileName: FileName, into dict: inout T) {
         guard let filePath = getFilePath(JsonFileName: JsonfileName) else {return}
         do {
             let data = try Data(contentsOf: filePath)
-            dict = try JSONDecoder().decode([String:[T]].self, from: data)
-            dict = try JSONSerialization.jsonObject(with: data) as! [String : [T]]
+            dict = try JSONDecoder().decode(T.self, from: data)
+//            dict = try JSONSerialization.jsonObject(with: data) as! [String : [T]]
         } catch {
             print("Error loading \(JsonfileName): \(error)")
         }
@@ -82,8 +83,28 @@ class JSONDataManager {
         return filePath
     }
     
+    func loadCurrentItems<T: Codable>(JsonFileName: FileName) -> T? {
+        guard let filePath = getFilePath(JsonFileName: JsonFileName), FileManager.default.fileExists(atPath: filePath.path) else {
+            return nil
+        }
+        
+        do {
+            let data = try Data(contentsOf: filePath)
+            let items = try JSONDecoder().decode(T.self, from: data)
+            return items
+        } catch {
+            print("Error loading \(JsonFileName): \(error)")
+            return nil
+        }
+    }
     
-    func updateArray<T: Codable>(_ array:[String:[T]], JsonFileName: FileName) {
+    private func updateArray<T:Codable> (value newItem: T,key: String, JsonFileName: FileName) {
+//        guard var currentItems = loadCurrentItems(JsonFileName: JsonFileName) as? T else {return}
+        currentItems.updateValue(newItem, forKey: key)
+        updateArray(currentItems, JsonFileName: JsonFileName)
+    }
+    
+    func updateArray<T: Codable>(_ array:T, JsonFileName: FileName) {
         guard let filePath = getFilePath(JsonFileName: JsonFileName) else {
             return
         }
@@ -95,46 +116,27 @@ class JSONDataManager {
             print("Error saving \(JsonFileName): \(error)")
         }
     }
-    
-    func loadCurrentItems<T: Codable>(JsonFileName: FileName) -> [String:[T]] {
-        guard let filePath = getFilePath(JsonFileName: JsonFileName), FileManager.default.fileExists(atPath: filePath.path) else {
-            return [:]
-        }
-        
-        do {
-            let data = try Data(contentsOf: filePath)
-            let items = try JSONDecoder().decode([String:[T]].self, from: data)
-            return items
-        } catch {
-            print("Error loading \(JsonFileName): \(error)")
-            return [:]
-        }
+    func readUsers() -> User {
+        return users
     }
     
-    private func updateArray<T: Codable>(value newItem: [T],key: String, JsonFileName: FileName) {
-        var currentItems: [String:[T]] = loadCurrentItems(JsonFileName: JsonFileName)
-        currentItems.updateValue(newItem, forKey: key)
-        updateArray(currentItems, JsonFileName: JsonFileName)
+    func readBooks() -> Book {
+        return books
     }
     
-    func readItems(JsonFileName:FileName) -> [String:Codable] {
-        switch JsonFileName {
-        case .user_data: return users
-        case .book_data: return books
-        case .rental_state: return rentals
-        }
+    func readRentals() -> Rental {
+        return rentals
     }
-    
     func deleteItem(JsonFileName:FileName, key: String) {
         switch JsonFileName {
         case .user_data:
-            users.removeValue(forKey: key)
+            users.user.removeValue(forKey: key)
             updateArray(users, JsonFileName: JsonFileName)
         case .book_data:
-            books.removeValue(forKey: key)
+            books.book.removeValue(forKey: key)
             updateArray(books, JsonFileName: JsonFileName)
         case .rental_state:
-            rentals.removeValue(forKey: key)
+            rentals.rental.removeValue(forKey: key)
             updateArray(rentals, JsonFileName: JsonFileName)
         }
     }
