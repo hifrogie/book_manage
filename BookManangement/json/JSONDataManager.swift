@@ -7,12 +7,6 @@
 
 import Foundation
 
-enum FileName:String {
-    case book_data
-    case rental_state
-    case user_data
-}
-
 struct User:Codable {
     var user: [String:[UserValue]]
 }
@@ -50,94 +44,137 @@ struct RentalValue:Codable {
     var isReturn:String
 }
 
+enum FileName:String {
+    case book_data = "book_data.json"
+    case rental_state = "rental_state.json"
+    case user_data = "user_data.json"
+}
+
 class JSONDataManager {
     static let instance = JSONDataManager()
     
-    var users:User
-    var books:Book
-    var rentals:Rental
+    static var users:[String:[String]]? = nil
+    static var books:[String:[String]]? = nil
+    static var rentals:[String:[String]]? = nil
     
     init() {
         loadAllFiles()
     }
     
     private func loadAllFiles() {
-        loadFile(JsonfileName: .user_data, into: &users)
-        loadFile(JsonfileName: .book_data, into: &books)
-        loadFile(JsonfileName: .rental_state, into: &rentals)
+        initFile(JsonfileName: .book_data)
+        initFile(JsonfileName: .rental_state)
+        initFile(JsonfileName: .user_data)
+        JSONDataManager.users = loadJsonFile(JsonFileName: .user_data)
+        JSONDataManager.books = loadJsonFile(JsonFileName: .book_data)
+        JSONDataManager.rentals = loadJsonFile(JsonFileName: .rental_state)
+        
     }
     
-    private func loadFile<T: Codable>(JsonfileName: FileName, into dict: inout T) {
-        guard let filePath = getFilePath(JsonFileName: JsonfileName) else {return}
-        do {
-            let data = try Data(contentsOf: filePath)
-            dict = try JSONDecoder().decode(T.self, from: data)
-//            dict = try JSONSerialization.jsonObject(with: data) as! [String : [T]]
-        } catch {
-            print("Error loading \(JsonfileName): \(error)")
+    private func initFile(JsonfileName:FileName) {
+        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentDirectory.appendingPathComponent(JsonfileName.rawValue)
+            if !(FileManager.default.fileExists(atPath: fileURL.path)) {
+                creatFile(JsonFileName: JsonfileName)
+            }
         }
     }
-    
+
+    private func getBundleFilePath(JsonFileName:FileName) -> URL? {
+        guard let fileURL = Bundle.main.url(forResource: JsonFileName.rawValue, withExtension: nil) else {return nil}
+        return fileURL
+    }
     private func getFilePath(JsonFileName:FileName) -> URL? {
-        let filePath = Bundle.main.url(forResource: JsonFileName.rawValue, withExtension:  "json")
-        return filePath
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {return nil}
+        let fileURL = documentsDirectory.appendingPathComponent(JsonFileName.rawValue)
+        return fileURL
+    }
+    func getType(type:FileName) -> Codable.Type {
+        switch type {
+        case .user_data: return User.self
+        case .rental_state: return Rental.self
+        case .book_data: return Book.self
+        }
     }
     
-    func loadCurrentItems<T: Codable>(JsonFileName: FileName) -> T? {
-        guard let filePath = getFilePath(JsonFileName: JsonFileName), FileManager.default.fileExists(atPath: filePath.path) else {
-            return nil
+    func getValueType(type:FileName) -> Codable.Type {
+        switch type {
+        case .user_data: return UserValue.self
+        case .rental_state: return RentalValue.self
+        case .book_data: return BookValue.self
         }
-        
+    }
+    
+    //file, 번들에 있던 json 딕셔너리로 가져오는 것
+    func loadFile(filePath:URL) -> [String:[String]]? {
         do {
             let data = try Data(contentsOf: filePath)
-            let items = try JSONDecoder().decode(T.self, from: data)
-            return items
+            let returnDict = try JSONSerialization.jsonObject(with: data) as? [String:[String]]
+            return returnDict
         } catch {
-            print("Error loading \(JsonFileName): \(error)")
+            print("Error loading: \(error)")
             return nil
         }
     }
-    
-    private func updateArray<T:Codable> (value newItem: T,key: String, JsonFileName: FileName) {
-//        guard var currentItems = loadCurrentItems(JsonFileName: JsonFileName) as? T else {return}
-        currentItems.updateValue(newItem, forKey: key)
-        updateArray(currentItems, JsonFileName: JsonFileName)
+    //파일의 json 가져오는 거
+    func loadJsonFile(JsonFileName: FileName) -> [String:[String]]? {
+        guard let filePath = getFilePath(JsonFileName: JsonFileName) else {return nil}
+        return loadFile(filePath: filePath)
     }
-    
-    func updateArray<T: Codable>(_ array:T, JsonFileName: FileName) {
-        guard let filePath = getFilePath(JsonFileName: JsonFileName) else {
-            return
-        }
-        
+    //번들의 json 가져오는 것
+    func loadBundleJson(JsonFileName:FileName) -> [String:[String]]? {
+        guard let filePath = getBundleFilePath(JsonFileName: JsonFileName) else {return nil}
+        return loadFile(filePath: filePath)
+    }
+    // 딕셔너리 자체를 dict로 다시 씀
+    func updateDict(dict:[String:[String]], JsonFileName: FileName) {
+        guard let filePath = getFilePath(JsonFileName: JsonFileName) else {return}
         do {
-            let data = try JSONEncoder().encode(array)
-            try data.write(to: filePath, options: .atomic)
+            let data = try JSONEncoder().encode(dict)
+            try data.write(to: filePath)
         } catch {
             print("Error saving \(JsonFileName): \(error)")
         }
     }
-    func readUsers() -> User {
-        return users
-    }
-    
-    func readBooks() -> Book {
-        return books
-    }
-    
-    func readRentals() -> Rental {
-        return rentals
-    }
-    func deleteItem(JsonFileName:FileName, key: String) {
-        switch JsonFileName {
-        case .user_data:
-            users.user.removeValue(forKey: key)
-            updateArray(users, JsonFileName: JsonFileName)
-        case .book_data:
-            books.book.removeValue(forKey: key)
-            updateArray(books, JsonFileName: JsonFileName)
-        case .rental_state:
-            rentals.rental.removeValue(forKey: key)
-            updateArray(rentals, JsonFileName: JsonFileName)
+    //파일에 키와 밸류 추가하기
+    func updateDict(key:String, valueArray:[String], JsonFileName: FileName,_ dict: inout [String:[String]]) {
+        var fileName = JsonFileName
+        guard let filePath = getFilePath(JsonFileName: JsonFileName) else {return}
+        
+        do {
+            dict[key] = valueArray
+            let data = try JSONEncoder().encode(dict)
+            try data.write(to: filePath, options: [])
+        } catch {
+            print("Error saving \(JsonFileName): \(error)")
         }
+    }
+    //번들에 있는 정보 파일에 다시 쓰기
+    func creatFile(JsonFileName: FileName) {
+        guard let fileURL = getBundleFilePath(JsonFileName: JsonFileName), var dict = loadFile(filePath: fileURL) else {return}
+        
+        do {
+            let data = try JSONEncoder().encode(dict)
+            try data.write(to: fileURL)
+        } catch {
+            print("Error saving \(JsonFileName): \(error)")
+        }
+    }
+    func readUsers() -> [String:[String]]? {
+        return loadJsonFile(JsonFileName: .user_data)
+    }
+    
+    func readBooks() -> [String:[String]]? {
+        return loadJsonFile(JsonFileName: .book_data)
+    }
+    
+    func readRentals() -> [String:[String]]? {
+        return loadJsonFile(JsonFileName: .rental_state)
+    }
+    func deleteItem(JsonFileName:FileName, key: String, _ dict: inout [String:[String]]) {
+        
+            dict.removeValue(forKey: key)
+            updateDict(dict: dict, JsonFileName: JsonFileName)
+        
     }
 }

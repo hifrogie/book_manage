@@ -25,9 +25,11 @@ class ViewController: UIViewController {
         setupGestureRecognizer()
         consolLabel.text = textManageClass.setConsole()
         initDict()
-        print(JSONDataManager.instance.getBooks())
+        JSONDataManager.instance.updateDict(key:"쫩쫩이", valueArray:  ["부글부글","보들보들","쫩쫩쫩"], JsonFileName: .book_data)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0){
+            print("\(JSONDataManager.instance.loadFile(JsonfileName: .book_data))")
+        }
     }
-    
     private func initDict() {
         if UserDefaults.standard.dictionary(forKey: "userDict") == nil {
             UserDefaults.standard.set(DataTable.instance.userDataDictionary,forKey: "userDict")
