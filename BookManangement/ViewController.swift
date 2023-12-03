@@ -21,26 +21,12 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        JSONDataManager.instance
         setKeyboardNotification()
         setupGestureRecognizer()
         consolLabel.text = textManageClass.setConsole()
-        initDict()
-        JSONDataManager.instance.updateDict(key:"쫩쫩이", valueArray:  ["부글부글","보들보들","쫩쫩쫩"], JsonFileName: .book_data)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0){
-            print("\(JSONDataManager.instance.loadFile(JsonfileName: .book_data))")
-        }
     }
-    private func initDict() {
-        if UserDefaults.standard.dictionary(forKey: "userDict") == nil {
-            UserDefaults.standard.set(DataTable.instance.userDataDictionary,forKey: "userDict")
-        }
-        if UserDefaults.standard.dictionary(forKey: "bookDict") == nil {
-            UserDefaults.standard.set(DataTable.instance.bookDataDictionary, forKey: "bookDict")
-        }
-        if UserDefaults.standard.dictionary(forKey: "rentalDict") == nil {
-            UserDefaults.standard.set(DataTable.instance.rentalStateDictionary, forKey: "rentalDict")
-        }
-    }
+    
     @IBAction func okayAction(_ sender: Any) {
         guard let text = userTextField.text, let _ = consolLabel.text else {return}
         if (okayList[0] == "0") {

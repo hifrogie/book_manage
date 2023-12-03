@@ -12,7 +12,7 @@ class MemberClass {
     private var keyword = ""
     private var indexArray:[String]
     private var valueArray = Array(repeating: "", count: 5)
-    private var dictKey = ""
+    private var dictKey:FileName
     var searchMember = ""
     var editMemberNumber = ""
     var isMember:Bool
@@ -20,10 +20,10 @@ class MemberClass {
     init(isMemeber:Bool, keyword:String) {
         if isMemeber {
             indexArray = ["이름","나이","회원번호","폰번호","대여도서"]
-            dictKey = "userDict"
+            dictKey = FileName.user_data
         } else {
             indexArray = ["도서제목", "도서번호","대여상태", "대여자",""]
-            dictKey = "bookDict"
+            dictKey = FileName.book_data
         }
         self.keyword = keyword
         self.isMember = isMemeber
@@ -50,9 +50,9 @@ class MemberClass {
             valueArray[3] = text
             
             let userArray = [valueArray[1], valueArray[2], valueArray[3], valueArray[4]]
-            guard var userDict = UserDefaults.standard.dictionary(forKey: dictKey) else {return}
-            userDict[valueArray[0]] = userArray as Any
-            UserDefaults.standard.set(userDict, forKey: dictKey)
+            guard var addDict = JSONDataManager.instance.readProperty(JsonFileName: dictKey) as? [String:[String]] else {return}
+            addDict[valueArray[0]] = userArray as [String]
+            JSONDataManager.instance.updateDict(dict: addDict, JsonFileName: dictKey)
             
             let resultText = memberPrint(key: valueArray[0], dataValue: userArray)
             completeHandler(resultText)
@@ -60,13 +60,13 @@ class MemberClass {
         }
     }
     
-    func memberSearch(userText:String, completion:(String) -> Void) {
-        guard let userDict = UserDefaults.standard.dictionary(forKey: dictKey) else {return}
+    func memberSearch(searchext:String, completion:(String) -> Void) {
+        guard let searchDict:[String:[String]] = JSONDataManager.instance.loadJsonFile(JsonFileName: dictKey)  else {return}
         
-        for (key, value) in userDict {
-            if (key == userText) {
+        for (key, value) in searchDict {
+            if (key == searchext) {
                 searchMember = key
-                let dataValue:Array<String> = value as! Array<String>
+                let dataValue:Array<String> = value
                 
                 let text = """
                 \(memberPrint(key: key, dataValue: dataValue))
@@ -99,29 +99,28 @@ class MemberClass {
     }
     
     private func keyChange(key:String, completionHandler:(Dictionary<String,Any>, String) -> Void) {
-        guard var userDict = UserDefaults.standard.dictionary(forKey: dictKey) else {return}
+        guard var dict:[String:[String]] = JSONDataManager.instance.loadJsonFile(JsonFileName: dictKey)  else {return}
         let userArray = key.components(separatedBy: ".")
-        if let entry = userDict.removeValue(forKey: searchMember) {
-            userDict[userArray[1]] = entry
-            UserDefaults.standard.set(userDict, forKey: dictKey)
-            completionHandler(userDict, userArray[1])
-        }
+        let dictValue = dict[key]
+            dict[userArray[1]] = dictValue
+            
+            completionHandler(dict, userArray[1])
+        
     }
     
     private func valueChange(valueNumber:String, completionHandler: (Dictionary<String,Any>, String) -> Void) {
         let valueArray = valueNumber.components(separatedBy: ".")
         guard let valueInt = Int(valueArray[0]) else {return}
         let valueIndex = valueInt - 2
-        guard var userDict = UserDefaults.standard.dictionary(forKey: dictKey) else {return}
+        guard var valueDict:[String:[String]] = JSONDataManager.instance.loadJsonFile(JsonFileName: dictKey),var searchArray: [String] = valueDict[searchMember] else {return}
         
         if valueIndex < 0 {return}
-        var searchArray: [String] = userDict[searchMember] as! [String]
         
         searchArray[valueIndex] = valueArray[1]
-        userDict[searchMember] = searchArray
+        valueDict[searchMember] = searchArray
+        JSONDataManager.instance.updateDict(dict: valueDict, JsonFileName: dictKey)
         
-        UserDefaults.standard.set(userDict, forKey: dictKey)
-        completionHandler(userDict, searchMember)
+        completionHandler(valueDict, searchMember)
     }
     
     func memberPrint(key:String, dataValue:Array<String>) -> String{
@@ -144,11 +143,9 @@ class MemberClass {
     }
     
     func removeMember(completion:(String) -> Void) {
-        guard var userDict = UserDefaults.standard.dictionary(forKey: dictKey) else {return}
-        userDict.removeValue(forKey: searchMember)
-        
-        UserDefaults.standard.set(userDict, forKey: dictKey)
-        
+        guard var dict:[String:[String]] = JSONDataManager.instance.loadJsonFile(JsonFileName: dictKey) else {return}
+        dict.removeValue(forKey: searchMember)
+        JSONDataManager.instance.updateDict(dict: dict, JsonFileName: dictKey)
         completion("삭제 완료되었습니다.")
     }
     func memberThirdAction(type2:String, userText:String, completion:(String) -> Void) {
@@ -192,7 +189,7 @@ class MemberClass {
             } else if userText == "3" {
                 completion("상위 메뉴 이동")
             } else {
-                memberSearch(userText: userText, completion: { text in
+                memberSearch(searchext: userText, completion: { text in
                     completion(text)
                 })
             }
