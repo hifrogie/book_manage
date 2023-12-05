@@ -7,43 +7,6 @@
 
 import Foundation
 
-struct User:Codable {
-    var user: [String:[UserValue]]
-}
-
-struct UserValue: Codable {
-//    var name:String
-    var age:String
-    var memberId:String
-    var phoneNumber:String
-    var bookRented: String
-}
-
-struct Book: Codable {
-    var book:[String:[BookValue]]
-}
-
-struct BookValue: Codable {
-//    var bookTitle:String
-    var bookNumber:String
-    var rentalStatus:String
-    var borrower:String
-}
-
-struct Rental: Codable {
-    var rental: [String:[RentalValue]]
-}
-
-struct RentalValue:Codable {
-//    var bookTitle:String
-    var memberId:String
-    var bookId:String
-    var name:String
-    var rentalDate:String
-    var returnDate:String
-    var isReturn:String
-}
-
 enum FileName:String {
     case book_data = "book_data.json"
     case rental_state = "rental_state.json"
